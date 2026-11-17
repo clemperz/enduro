@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+<rect width="512" height="512" fill="#FBF3E0"/>
+<g transform="translate(46 82) scale(2)">
+  <circle cx="48" cy="54" r="17" fill="#C8925E" stroke="#2A2630" stroke-width="5"/><circle cx="48" cy="54" r="8" fill="#9F6C3F"/>
+  <circle cx="152" cy="54" r="17" fill="#C8925E" stroke="#2A2630" stroke-width="5"/><circle cx="152" cy="54" r="8" fill="#9F6C3F"/>
+  <path d="M36 216 C30 172 60 150 100 150 C140 150 170 172 164 216 Z" fill="#C8925E" stroke="#2A2630" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M68 216 C64 188 82 174 100 174 C118 174 136 188 132 216 Z" fill="#F5DDB8"/>
+  <path d="M100 36 C142 36 168 64 168 100 C168 138 140 162 100 162 C60 162 32 138 32 100 C32 64 58 36 100 36 Z" fill="#C8925E" stroke="#2A2630" stroke-width="5"/>
+  <ellipse cx="100" cy="128" rx="38" ry="27" fill="#F5DDB8"/>
+  <circle cx="55" cy="122" r="10" fill="#F4978E" opacity=".8"/><circle cx="145" cy="122" r="10" fill="#F4978E" opacity=".8"/>
+  
+  <ellipse cx="74" cy="98" rx="11" ry="13" fill="#fff" stroke="#2A2630" stroke-width="4"/>
+  <circle cx="77" cy="100" r="6" fill="#2A2630"/><circle cx="79" cy="97" r="2.2" fill="#fff"/>
+  <ellipse cx="126" cy="98" rx="11" ry="13" fill="#fff" stroke="#2A2630" stroke-width="4"/>
+  <circle cx="123" cy="100" r="6" fill="#2A2630"/><circle cx="125" cy="97" r="2.2" fill="#fff"/>
+  <ellipse cx="100" cy="116" rx="10" ry="7" fill="#2A2630"/><ellipse cx="97" cy="114" rx="3" ry="1.6" fill="#fff" opacity=".6"/>
+  <path d="M82 128 Q100 144 118 128" fill="none" stroke="#2A2630" stroke-width="4" stroke-linecap="round"/><path d="M91 131 h18 v11 q0 4 -4 4 h-10 q-4 0 -4 -4 z" fill="#fff" stroke="#2A2630" stroke-width="3" stroke-linejoin="round"/><path d="M100 132 v13" stroke="#2A2630" stroke-width="2.5"/>
+  <path d="M35 82 C60 58 140 58 165 82 L164 68 C140 44 60 44 36 68 Z" fill="#E8504F" stroke="#2A2630" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M164 72 l20 -8 l-4 14 l14 4 l-22 6 z" fill="#E8504F" stroke="#2A2630" stroke-width="4" stroke-linejoin="round"/>
+</g>
+</svg>

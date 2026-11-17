@@ -1,0 +1,10 @@
+# Données personnelles (profil, activités, identifiants Strava et Withings)
+data/
+.DS_Store
+
+# Livres et documents déposés dans le dossier
+*.pdf
+
+# Réglages locaux de Claude Code, image de travail
+.claude/
+icone-strava.png
