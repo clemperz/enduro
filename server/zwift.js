@@ -138,3 +138,51 @@ export function writeWorkout(zwiftDir, fileName, xml) {
   writeFileSync(join(w.dir, fileName), xml, 'utf8');
   return { fileName, userId: w.id };
 }
+
+// ---------------------------------------------------------------------------
+// Séances reçues du téléphone (AirDrop → Téléchargements)
+// ---------------------------------------------------------------------------
+
+/**
+ * Nom d'un fichier envoyé par Enduro depuis le téléphone, tel qu'il arrive sur
+ * le Mac : « enduro-1-lun.zwo », parfois renommé « enduro-1-lun 2.zwo » (déjà
+ * présent) ou complété en « .zwo.txt ». Renvoie le nom à donner dans Zwift, ou null.
+ */
+export function inboxName(name) {
+  const m = /^(enduro-[1-7]-(?:lun|mar|mer|jeu|ven|sam|dim)(?:-[23])?)(?: \d+| \(\d+\)|-\d+)?\.zwo(?:\.(?:txt|xml))?$/i.exec(name);
+  return m ? `${m[1].toLowerCase()}.zwo` : null;
+}
+
+const looksComplete = (xml) => /<workout_file>[\s\S]*<\/workout_file>\s*$/.test(xml);
+
+/**
+ * Range dans Zwift les séances Enduro arrivées dans `inboxDir`. Si le même jour
+ * est arrivé plusieurs fois, la plus récente gagne. Un fichier en cours de
+ * réception (incomplet) est laissé pour le passage suivant.
+ * Renvoie { moved: [noms dans Zwift], waiting: nombre de fichiers incomplets }.
+ */
+export function collectInbox(inboxDir, zwiftDir) {
+  if (!existsSync(inboxDir)) return { moved: [], waiting: 0 };
+  const found = new Map();
+  let waiting = 0;
+  for (const name of readdirSync(inboxDir)) {
+    const target = inboxName(name);
+    if (!target) continue;
+    const path = join(inboxDir, name);
+    const st = statSync(path);
+    if (!st.isFile() || st.size > 200000) continue;
+    const xml = readFileSync(path, 'utf8');
+    if (!looksComplete(xml)) { waiting += 1; continue; }
+    const list = found.get(target) ?? [];
+    list.push({ path, xml, mtime: st.mtimeMs });
+    found.set(target, list);
+  }
+  const moved = [];
+  for (const [target, list] of found) {
+    list.sort((a, b) => b.mtime - a.mtime);
+    writeWorkout(zwiftDir, target, list[0].xml);
+    for (const f of list) unlinkSync(f.path);
+    moved.push(target);
+  }
+  return { moved: moved.sort(), waiting };
+}

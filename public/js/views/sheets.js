@@ -95,7 +95,7 @@ function sessionSheet({ id }) {
     `,
     foot: canAct ? [
       btn('C’est fait', 'done', { cls: 'primary', ico: 'check', data: { id: s.id } }),
-      s.sport === 'bike' && s.date >= S.today && S.server?.mode !== 'local' ? btn(s.zwift ? 'Dans Zwift ✓' : 'Envoyer vers Zwift', 'zwift', { cls: s.zwift ? 'sent' : 'zwift', ico: 'screen', data: { id: s.id } }) : '',
+      s.sport === 'bike' && s.date >= S.today ? btn(s.zwift ? (S.server?.mode === 'local' ? 'Envoyée vers Zwift ✓' : 'Dans Zwift ✓') : 'Envoyer vers Zwift', 'zwift', { cls: s.zwift ? 'sent' : 'zwift', ico: 'screen', data: { id: s.id } }) : '',
       s.date >= S.today && plannableDays().includes(s.date) && s.role !== 'race'
         ? btn('Changer de séance', 'plan-add', { cls: 'ghost', ico: 'swap', data: { date: s.date, replace: s.id, sport: s.sport, kind: s.kind } }) : '',
     ].join('') : '',
@@ -280,11 +280,16 @@ function articleSheet({ id }) {
   };
 }
 
-function zwiftSheet({ files, ftp, ftpEstimated }) {
+function zwiftSheet({ files, ftp, ftpEstimated, shared }) {
+  const several = files.length > 1;
+  const intro = shared
+    ? `<div class="momo-tip">${momo('pumped', 72)}<p>${several ? `${files.length} séances envoyées` : 'Séance envoyée'}. Si tu les as passées à ton Mac par AirDrop, ${several ? 'elles sont' : 'elle est'} déjà rangée${several ? 's' : ''} dans Zwift.</p></div>
+      <p class="muted small">Le rangement est automatique sur le Mac où tourne Zwift (réception AirDrop installée une fois pour toutes). Une notification « Enduro → Zwift » le confirme.</p>`
+    : `<div class="momo-tip">${momo('pumped', 72)}<p>${several ? `${files.length} séances déposées` : 'Séance déposée'} dans ton dossier Zwift.</p></div>`;
   return {
-    title: `<span class="art-ico" style="--c:#F68D3F">${icon('screen', 24)}</span><span>C’est dans Zwift !</span>`,
+    title: `<span class="art-ico" style="--c:#F68D3F">${icon('screen', 24)}</span><span>${shared ? 'En route pour Zwift !' : 'C’est dans Zwift !'}</span>`,
     body: `
-      <div class="momo-tip">${momo('pumped', 72)}<p>${files.length > 1 ? `${files.length} séances déposées` : 'Séance déposée'} dans ton dossier Zwift.</p></div>
+      ${intro}
       <ol class="howto">
         <li><strong>Relance Zwift</strong> s’il était ouvert (il lit les nouvelles séances au démarrage).</li>
         <li>Ouvre <strong>Entraînements</strong>, puis la catégorie <strong>Entraînements personnalisés</strong>.</li>

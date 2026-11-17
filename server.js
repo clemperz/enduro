@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url';
 import { createStore } from './server/store.js';
 import { zwiftStatus, readNewRides, reanalyzeRides, writeWorkout, removeWorkout } from './server/zwift.js';
 import { createBackend, ApiError } from './public/core/backend.js';
+import { airdropInstalled } from './server/zwift-airdrop.js';
 
 const ROOT = fileURLToPath(new URL('.', import.meta.url));
 const PUBLIC = join(ROOT, 'public');
@@ -129,7 +130,9 @@ const backend = createBackend({
   },
   stravaRedirect: () => `http://localhost:${PORT}/api/strava/callback`,
   withingsDefaultRedirect: () => `http://localhost:${PORT}/api/withings/callback`,
-  device: () => ({ mode: 'mac', port: PORT, shared: HOST !== '127.0.0.1' && HOST !== 'localhost', addresses: lanAddresses() }),
+  device: () => ({
+    mode: 'mac', port: PORT, shared: HOST !== '127.0.0.1' && HOST !== 'localhost', addresses: lanAddresses(), airdrop: airdropInstalled(),
+  }),
   log: (message) => console.error(message),
 });
 

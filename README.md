@@ -119,6 +119,26 @@ Si Zwift est installé sur ce Mac, tout est automatique et sans mot de passe :
 Zwift calcule les watts à partir de la FTP réglée dans Zwift : mets la même
 valeur dans Profil → Mes repères.
 
+### Recevoir les séances envoyées depuis le téléphone
+
+Une seule fois, dans le Terminal, dans le dossier d'Enduro :
+
+```bash
+npm run zwift:airdrop
+```
+
+Un petit automatisme macOS surveille alors le dossier Téléchargements : dès
+qu'une séance « enduro-….zwo » y arrive par AirDrop, il la range dans le
+dossier de Zwift et affiche une notification. Il ne touche à aucun autre
+fichier et fonctionne même si Enduro n'est pas lancé sur le Mac. Journal :
+`~/Library/Logs/enduro-zwift-airdrop.log`. Pour le retirer :
+
+```bash
+npm run zwift:airdrop:retirer
+```
+
+Si tu déplaces le dossier d'Enduro, relance `npm run zwift:airdrop`.
+
 ## Strava (facultatif)
 
 Depuis juin 2026, Strava réserve l'accès à son API à ses abonnés. Si tu l'es :
@@ -209,8 +229,12 @@ l'un ou l'autre, et passe de l'un à l'autre avec une sauvegarde.
 
 Ce qui change sur le téléphone :
 
-- **Zwift** : pas d'accès à ses dossiers. Tes sorties Zwift arrivent par
-  Strava (Zwift les y envoie). L'envoi des séances vers Zwift reste sur le Mac.
+- **Zwift → Enduro** : tes sorties arrivent par Strava. Il suffit que Zwift
+  soit relié à Strava (appli Zwift Companion → Connexions).
+- **Enduro → Zwift** : « Envoyer vers Zwift » ouvre le partage ; choisis ton
+  Mac dans AirDrop. Sur le Mac, la séance est rangée toute seule dans Zwift
+  (Entraînements personnalisés), avec une notification, à condition d'y avoir
+  installé une fois la réception AirDrop (voir plus bas).
 - **Strava** : connecte-le depuis le téléphone (Profil → Connexions). Dans
   <https://www.strava.com/settings/api>, mets `clemperz.github.io` comme
   « Authorization Callback Domain » (Strava accepte toujours `localhost` en plus).
@@ -252,7 +276,7 @@ ou de tout effacer.
 
 ```
 server.js          serveur local (aucune dépendance)
-server/            stockage sur disque, Zwift
+server/            stockage sur disque, Zwift, réception AirDrop (zwift-airdrop.js)
 public/core/       ce que fait chaque demande (profil, activités, Strava, Withings,
                    sauvegardes) : le même code sur le Mac et dans le téléphone
 public/js/local.js la version sans serveur : stockage du navigateur

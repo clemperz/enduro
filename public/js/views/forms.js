@@ -319,8 +319,13 @@ function zwiftCard() {
   const count = S.activities.filter((a) => a.source === 'zwift' || a.sources?.includes('zwift')).length;
   if (online()) {
     return card(`${icon('screen', 24)} Zwift`, `
-      <p>Ici, Enduro n’a pas accès aux dossiers de Zwift. Tes sorties Zwift arrivent quand même : Zwift les envoie à Strava, et Strava à Enduro (carte ci-dessous).</p>
-      <p class="muted small">L’envoi des séances vers Zwift (« Entraînements personnalisés ») se fait avec Enduro sur le Mac où Zwift est installé.</p>`, { cls: 'conn' });
+      <ul class="tips">
+        <li><strong>Zwift → Enduro :</strong> Zwift envoie tes sorties à Strava, et Strava à Enduro (carte ci-dessous). Il suffit que Zwift soit relié à Strava (appli Zwift Companion → Connexions).</li>
+        <li><strong>Enduro → Zwift :</strong> le bouton « Envoyer vers Zwift » ouvre le partage : choisis ton Mac dans AirDrop. Sur le Mac, la séance est rangée toute seule dans Zwift (Entraînements personnalisés), si la réception AirDrop y est installée.</li>
+      </ul>
+      <details class="fold"><summary>Installer la réception AirDrop sur le Mac</summary>
+        <p class="muted small">Une seule fois, dans le Terminal du Mac, dans le dossier d’Enduro : <code>npm run zwift:airdrop</code>. Pour la retirer : <code>npm run zwift:airdrop:retirer</code>. Elle ne touche qu’aux fichiers « enduro-….zwo » arrivés dans Téléchargements.</p>
+      </details>`, { cls: 'conn' });
   }
   if (!z.found) {
     return card(`${icon('screen', 24)} Zwift`, `<p>Zwift n’a pas été trouvé sur cet ordinateur (dossier Documents/Zwift). Installe-le et lance-le une fois, puis reviens ici.</p>`, { cls: 'conn' });
@@ -330,6 +335,9 @@ function zwiftCard() {
     <ul class="tips">
       <li><strong>Zwift → Enduro :</strong> tes sorties sont lues automatiquement à chaque ouverture (${count} importée${count > 1 ? 's' : ''}).</li>
       <li><strong>Enduro → Zwift :</strong> ${z.canExport ? 'le bouton « Envoyer vers Zwift » dépose tes séances dans Entraînements personnalisés.' : 'lance Zwift une première fois pour activer l’envoi des séances.'}</li>
+      <li><strong>Depuis le téléphone :</strong> ${S.server?.airdrop
+    ? 'réception AirDrop active. Une séance envoyée depuis Enduro en ligne est rangée ici toute seule.'
+    : 'pour recevoir les séances envoyées par AirDrop depuis Enduro en ligne, lance une fois <code>npm run zwift:airdrop</code> dans le Terminal, dans le dossier d’Enduro.'}</li>
     </ul>
     <div class="actions minor">${btn('Relire mes sorties Zwift', 'zwift-import', { cls: 'small', ico: 'sync' })}${btn('Comment ça marche ?', 'open-article', { cls: 'small ghost', data: { id: 'ht' } })}</div>
   `, { cls: 'conn' });

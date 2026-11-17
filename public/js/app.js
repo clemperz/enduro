@@ -363,6 +363,18 @@ async function forgetInZwift(session) {
 }
 
 async function exportToZwift(sessions) {
+  // Version en ligne : la feuille de partage s'ouvre tout de suite (AirDrop vers le Mac où tourne Zwift).
+  if (api.local) {
+    const res = await api.zwiftShare(sessions);
+    if (!res) return;
+    for (const f of res.files) {
+      const found = findSession(f.sessionId);
+      if (found) found.session.zwift = f.fileName;
+    }
+    await savePlan();
+    S.ui.sheet = { type: 'zwift', shared: true, files: res.files, ftp: res.ftp, ftpEstimated: res.ftpEstimated };
+    return;
+  }
   if (!S.zwift?.canExport) throw new Error('Zwift n’a pas été trouvé sur cet ordinateur : lance-le une première fois.');
   const res = await api.zwiftExport(sessions);
   for (const f of res.files) {

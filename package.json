@@ -6,7 +6,9 @@
   "description": "Enduro — carnet d'entraînement endurance (vélo + course à pied), local, relié à Zwift et Strava",
   "scripts": {
     "start": "node server.js",
-    "test": "node --test \"test/*.test.js\""
+    "test": "node --test \"test/*.test.js\"",
+    "zwift:airdrop": "node server/zwift-airdrop.js --installer",
+    "zwift:airdrop:retirer": "node server/zwift-airdrop.js --retirer"
   },
   "engines": {
     "node": ">=20"

@@ -40,6 +40,7 @@ const http = {
   restore: (backup) => call('POST', 'api/restore', { backup }),
   reset: () => call('POST', 'api/reset', { confirm: 'EFFACER' }),
   loginUrl: (provider) => `api/${provider}/login`,
+  zwiftShare: () => { throw new Error('Sur le Mac, les séances vont directement dans Zwift.'); },
   exportBackup() {
     const a = document.createElement('a');
     a.href = 'api/export';
@@ -55,23 +56,30 @@ function appUrl() {
   return location.origin + location.pathname.replace(/index\.html$/, '');
 }
 
-/** Enregistre un fichier : feuille de partage sur téléphone (AirDrop, Fichiers…), téléchargement ailleurs. */
-function saveFile(fileName, text) {
-  const file = new File([text], fileName, { type: 'application/json' });
-  if (matchMedia('(pointer: coarse)').matches && navigator.canShare?.({ files: [file] })) {
-    return navigator.share({ files: [file], title: 'Sauvegarde Enduro' }).catch((err) => {
-      if (err.name !== 'AbortError') throw err;
+/**
+ * Donne des fichiers à l'utilisateur : feuille de partage sur téléphone
+ * (AirDrop, Fichiers…), téléchargement ailleurs. À appeler directement dans le
+ * clic (sans attente avant) : sinon le téléphone refuse d'ouvrir la feuille.
+ * Résout à faux si l'utilisateur a fermé la feuille sans rien envoyer.
+ */
+function giveFiles(files, title) {
+  if (matchMedia('(pointer: coarse)').matches && navigator.canShare?.({ files })) {
+    return navigator.share({ files, title }).then(() => true, (err) => {
+      if (err.name === 'AbortError') return false;
+      throw err;
     });
   }
-  const url = URL.createObjectURL(file);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = fileName;
-  document.body.append(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 10000);
-  return undefined;
+  for (const file of files) {
+    const url = URL.createObjectURL(file);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file.name;
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  }
+  return Promise.resolve(true);
 }
 
 function browserApi() {
@@ -106,7 +114,20 @@ function browserApi() {
     loginUrl: (provider) => (provider === 'strava' ? b.stravaLoginUrl() : b.withingsLoginUrl()),
     exportBackup() {
       const { fileName, json } = b.exportData();
-      return saveFile(fileName, json);
+      return giveFiles([new File([json], fileName, { type: 'application/json' })], 'Sauvegarde Enduro');
+    },
+    /**
+     * Séances vélo pour Zwift : partagées depuis le téléphone (AirDrop vers le
+     * Mac, où un petit automatisme les range dans Zwift). Renvoie null si
+     * l'utilisateur a renoncé.
+     */
+    async zwiftShare(sessions) {
+      const res = b.zwiftFiles(copy({ sessions }));
+      // « text/plain » : le type que tous les téléphones acceptent de partager ; le nom garde l'extension .zwo.
+      const files = res.files.map((f) => new File([f.xml], f.fileName, { type: 'text/plain' }));
+      const sent = await giveFiles(files, 'Séances Enduro pour Zwift');
+      if (!sent) return null;
+      return { files: res.files.map(({ sessionId, fileName }) => ({ sessionId, fileName })), ftp: res.ftp, ftpEstimated: res.ftpEstimated };
     },
   };
 }

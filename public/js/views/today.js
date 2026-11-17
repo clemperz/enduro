@@ -210,8 +210,8 @@ export function sessionCard(s, { compact = false } = {}) {
     const main = [
       btn(past ? 'Je l’ai faite' : 'C’est fait', 'done', { cls: 'primary', ico: 'check', data: { id: s.id } }),
       !race && s.steps?.length ? btn('Le détail', 'open-session', { data: { id: s.id }, ico: 'info' }) : '',
-      s.sport === 'bike' && !race && s.steps?.length && !past && S.server?.mode !== 'local'
-        ? btn(s.zwift ? 'Dans Zwift ✓' : 'Envoyer vers Zwift', 'zwift', { cls: s.zwift ? 'sent' : 'zwift', ico: 'screen', data: { id: s.id } })
+      s.sport === 'bike' && !race && s.steps?.length && !past
+        ? btn(s.zwift ? (S.server?.mode === 'local' ? 'Envoyée vers Zwift ✓' : 'Dans Zwift ✓') : 'Envoyer vers Zwift', 'zwift', { cls: s.zwift ? 'sent' : 'zwift', ico: 'screen', data: { id: s.id } })
         : '',
     ].join('');
     const minor = !race && !past ? [
@@ -356,7 +356,7 @@ function weekCard() {
   if (offset === 0 || offset === 1) {
     tools.push(btn('Ajouter une séance', 'plan-add', { cls: 'small', ico: 'plus', data: { date: offset === 0 ? S.today : monday } }));
   }
-  if (toZwift.length > 1 && S.zwift?.canExport) tools.push(btn(`Envoyer mes ${toZwift.length} séances vélo vers Zwift`, 'zwift-week', { cls: 'small zwift', ico: 'screen', data: { monday } }));
+  if (toZwift.length > 1 && (S.zwift?.canExport || S.server?.mode === 'local')) tools.push(btn(`Envoyer mes ${toZwift.length} séances vélo vers Zwift`, 'zwift-week', { cls: 'small zwift', ico: 'screen', data: { monday } }));
   if (week) tools.push(btn('Pourquoi cette semaine ?', 'open-why', { cls: 'small ghost', ico: 'info', data: { monday } }));
   if (offset === 0 && week) tools.push(btn('Recalculer ma semaine', 'replan', { cls: 'small ghost', ico: 'sync' }));
   return card('', `

@@ -117,6 +117,23 @@ export function createBackend(ctx) {
     return 'ok';
   }
 
+  /**
+   * Les fichiers Zwift (.zwo) de séances vélo, sans les déposer nulle part :
+   * le téléphone les partage (AirDrop vers le Mac), le Mac les écrit lui-même.
+   */
+  function zwiftFiles(body) {
+    const sessions = Array.isArray(body.sessions) ? body.sessions : [];
+    if (!sessions.length) throw new ApiError(400, 'Aucune séance à envoyer');
+    const refs = currentRefs();
+    const files = sessions.map((s) => {
+      if (s?.sport !== 'bike' || !Array.isArray(s.steps) || !s.steps.length || !DATE.test(s.date ?? '')) {
+        throw new ApiError(400, 'Seules les séances vélo structurées s’envoient vers Zwift');
+      }
+      return { sessionId: s.id, fileName: zwoFileName(s), xml: sessionToZwo(s, refs) };
+    });
+    return { files, ftp: refs.ftp, ftpEstimated: !!refs.est.ftp };
+  }
+
   return {
     publicState,
 
@@ -214,25 +231,19 @@ export function createBackend(ctx) {
       return { ...counts, errors, activities: state.activities, zwift: zwift.status() };
     },
 
+    zwiftFiles,
+
     zwiftExport(body) {
       const zwift = needZwift();
-      const sessions = Array.isArray(body.sessions) ? body.sessions : [];
-      if (!sessions.length) throw new ApiError(400, 'Aucune séance à envoyer');
-      const refs = currentRefs();
-      const files = [];
-      for (const s of sessions) {
-        if (s?.sport !== 'bike' || !Array.isArray(s.steps) || !s.steps.length || !DATE.test(s.date ?? '')) {
-          throw new ApiError(400, 'Seules les séances vélo structurées s’envoient vers Zwift');
-        }
-        const fileName = zwoFileName(s);
+      const { files, ftp, ftpEstimated } = zwiftFiles(body);
+      for (const f of files) {
         try {
-          zwift.write(fileName, sessionToZwo(s, refs));
+          zwift.write(f.fileName, f.xml);
         } catch (err) {
           throw new ApiError(409, err.message);
         }
-        files.push({ sessionId: s.id, fileName });
       }
-      return { files, ftp: refs.ftp, ftpEstimated: !!refs.est.ftp };
+      return { files: files.map(({ sessionId, fileName }) => ({ sessionId, fileName })), ftp, ftpEstimated };
     },
 
     zwiftRemove(fileName) {
